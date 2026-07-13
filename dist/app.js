@@ -1,11 +1,37 @@
-const photos = {
-  Salvador: "https://images.unsplash.com/photo-1640884216864-b26b780ff102?auto=format&fit=crop&w=1400&q=82",
-  "Lençóis": "https://commons.wikimedia.org/wiki/Special:FilePath/Vale%20do%20Pati%20-%20Chapada%20Diamantina.JPG?width=1400",
-  "Itacaré": "https://commons.wikimedia.org/wiki/Special:FilePath/Beach%20in%20Itacar%C3%A9.jpg?width=1100",
-  "Petrópolis": "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20Imperial%20-%20Petr%C3%B3polis.jpg?width=1400",
-  "Rio de Janeiro": "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?auto=format&fit=crop&w=1400&q=82",
-  "Ilha Grande": "https://commons.wikimedia.org/wiki/Special:FilePath/IlhaGrande-LopesMendes1.jpg?width=1400"
+const galleries = {
+  Salvador: [
+    { url: "https://images.unsplash.com/photo-1640884216864-b26b780ff102?auto=format&fit=crop&w=1800&q=84", caption: "De kleurrijke straten van Pelourinho · Celso Hashimoto / Unsplash" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Farol%20da%20Barra%20-%20Salvador%20-%2020250725062824.jpg?width=1700", caption: "Farol da Barra bij zonsopkomst · Donatas Dabravolskas / CC BY-SA 4.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Farol%20da%20Barra%20Salvador.JPG?width=1700", caption: "Zonsondergang bij Farol da Barra · Marcio Salata / CC BY-SA 3.0" }
+  ],
+  "Lençóis": [
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Vale%20do%20Pati%20-%20Chapada%20Diamantina.JPG?width=1800", caption: "Vale do Pati · Jardelsliumba / CC BY-SA 3.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Morro%20do%20Pai%20Inacio.jpg?width=1700", caption: "Morro do Pai Inácio · AlmostBrazilian / CC BY-SA 1.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Chapada%20Diamantina%20Panorama.jpg?width=1800", caption: "Panorama over Chapada Diamantina · Wikimedia Commons" }
+  ],
+  "Itacaré": [
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Beach%20in%20Itacar%C3%A9.jpg?width=1400", caption: "Strand in Itacaré · Rivieiraa / CC BY-SA 4.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Itacarezinho.jpg?width=1700", caption: "Praia de Itacarezinho · FlaviaC / Wikimedia Commons" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Itacar%C3%A9%20-%20Bahia.%20%2815265757608%29.jpg?width=1800", caption: "De kust van Itacaré · Marinelson Almeida / Wikimedia Commons" }
+  ],
+  "Petrópolis": [
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20Imperial%20-%20Petr%C3%B3polis.jpg?width=1800", caption: "Museu Imperial · Guilherme Tonelli / CC BY-SA 4.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Pal%C3%A1cio%20de%20Cristal%20%28Petr%C3%B3polis%29.jpg?width=1800", caption: "Palácio de Cristal · Wilfredor / Wikimedia Commons" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Museu%20Imperial%20em%20Petr%C3%B3polis.jpg?width=1500", caption: "Het keizerlijke paleis · Rusny Rezende Teixeira / CC BY-SA 4.0" }
+  ],
+  "Rio de Janeiro": [
+    { url: "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?auto=format&fit=crop&w=1800&q=84", caption: "Cristo Redentor · Raphael Nogueira / Unsplash" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Rio%20de%20Janeiro.jpg?width=1700", caption: "Rio vanaf Corcovado · JGHowes / Wikimedia Commons" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Rio%20de%20Janeiro%2C%20Copacabana%20Beach%2C%20Morro%20da%20Urca%2C%20and%20Cristo%20Redentor%20from%20P%C3%A3o%20de%20A%C3%A7%C3%BAcar%20%2815929750801%29.jpg?width=1800", caption: "Copacabana vanaf Pão de Açúcar · Arian Zwegers / Wikimedia Commons" }
+  ],
+  "Ilha Grande": [
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/IlhaGrande-LopesMendes1.jpg?width=1700", caption: "Lopes Mendes · Fulviusbsas / publiek domein" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Praia%20de%20Lopes%20Mendes%20em%20Ilha%20Grande.jpg?width=1800", caption: "Helder water bij Lopes Mendes · Cibele Brugnera / CC BY-SA 4.0" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Pico%20do%20Papagaio%20-%20Ilha%20Grande%20-%20RJ.jpg?width=1800", caption: "Pico do Papagaio · José Carlos B. Fialho / CC BY-SA 3.0" }
+  ]
 };
+
+const photos = Object.fromEntries(Object.entries(galleries).map(([place, images]) => [place, images[0].url]));
 
 const stops = {
   Salvador: { index: "01", dates: "3–5 oktober", nights: "2", stay: "Nomads Multicultural", copy: "Koloniale kleuren, Afro-Braziliaanse cultuur en de eerste caipirinha van de reis.", query: "Salvador" },
@@ -122,10 +148,21 @@ function initProgramFilters() {
   $("[data-search]").addEventListener("input", applyProgramFilter);
 }
 
+let currentStop = "Salvador";
+let stopPhotoIndex = 0;
+function updateStopPhoto() {
+  const images = galleries[currentStop];
+  const image = images[stopPhotoIndex];
+  $("[data-stop-photo]").style.backgroundImage = `url("${image.url}")`;
+  $("[data-stop-photo-count]").textContent = `${stopPhotoIndex + 1} / ${images.length}`;
+}
+
 function selectStop(name) {
   const stop = stops[name];
+  currentStop = name;
+  stopPhotoIndex = 0;
   $$(".route-point").forEach(button => button.classList.toggle("active", button.dataset.stop === name));
-  $("[data-stop-photo]").style.backgroundImage = `url("${photos[name]}")`;
+  updateStopPhoto();
   $("[data-stop-index]").textContent = `STOP ${stop.index}`;
   $("[data-stop-name]").textContent = name;
   $("[data-stop-copy]").textContent = stop.copy;
@@ -137,6 +174,15 @@ function selectStop(name) {
 
 function initRoute() {
   $$(".route-point").forEach(button => button.addEventListener("click", () => selectStop(button.dataset.stop)));
+  $("[data-stop-prev]").addEventListener("click", () => {
+    stopPhotoIndex = (stopPhotoIndex - 1 + galleries[currentStop].length) % galleries[currentStop].length;
+    updateStopPhoto();
+  });
+  $("[data-stop-next]").addEventListener("click", () => {
+    stopPhotoIndex = (stopPhotoIndex + 1) % galleries[currentStop].length;
+    updateStopPhoto();
+  });
+  $("[data-open-current-gallery]").addEventListener("click", () => openGallery(currentStop, stopPhotoIndex));
   $("[data-show-days]").addEventListener("click", event => {
     activeFilter = "all";
     $$("[data-filter]").forEach(b => b.classList.toggle("active", b.dataset.filter === "all"));
@@ -145,6 +191,46 @@ function initRoute() {
     $("#programma").scrollIntoView({ behavior: "smooth" });
   });
   selectStop("Salvador");
+}
+
+let dialogPlace = "Salvador";
+let dialogIndex = 0;
+function normalizeGalleryPlace(place) { return place === "Rio" ? "Rio de Janeiro" : place; }
+function renderDialog() {
+  const images = galleries[dialogPlace];
+  const current = images[dialogIndex];
+  $("[data-dialog-place]").textContent = dialogPlace.toUpperCase();
+  $("[data-dialog-title]").textContent = `Foto ${dialogIndex + 1} van ${images.length}`;
+  $("[data-dialog-image]").src = current.url;
+  $("[data-dialog-image]").alt = current.caption.split(" · ")[0];
+  $("[data-dialog-caption]").textContent = current.caption;
+  $("[data-dialog-thumbs]").innerHTML = images.map((image, index) => `<button class="dialog-thumb ${index === dialogIndex ? "active" : ""}" type="button" data-dialog-thumb="${index}" aria-label="Open foto ${index + 1}"><img src="${image.url}" alt=""></button>`).join("");
+  $$("[data-dialog-thumb]").forEach(button => button.addEventListener("click", () => {
+    dialogIndex = Number(button.dataset.dialogThumb);
+    renderDialog();
+  }));
+}
+
+function openGallery(place, index = 0) {
+  dialogPlace = normalizeGalleryPlace(place);
+  dialogIndex = index;
+  renderDialog();
+  $("[data-photo-dialog]").showModal();
+}
+
+function initPhotoDialog() {
+  const dialog = $("[data-photo-dialog]");
+  $$("[data-open-gallery]").forEach(button => button.addEventListener("click", () => openGallery(button.dataset.openGallery)));
+  $("[data-dialog-close]").addEventListener("click", () => dialog.close());
+  $("[data-dialog-prev]").addEventListener("click", () => {
+    dialogIndex = (dialogIndex - 1 + galleries[dialogPlace].length) % galleries[dialogPlace].length;
+    renderDialog();
+  });
+  $("[data-dialog-next]").addEventListener("click", () => {
+    dialogIndex = (dialogIndex + 1) % galleries[dialogPlace].length;
+    renderDialog();
+  });
+  dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
 }
 
 function loadSet(key) {
@@ -156,33 +242,101 @@ function saveSet(key, set) {
   try { localStorage.setItem(key, JSON.stringify([...set])); } catch { /* storage may be disabled */ }
 }
 
-const shortlist = loadSet("nescio-shortlist");
+function encodeGroupState(value) {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  let binary = "";
+  bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function decodeGroupState(value) {
+  try {
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((value.length + 3) % 4);
+    const bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    return Object.fromEntries(Object.entries(parsed).filter(([, names]) => Array.isArray(names)).map(([id, names]) => [id, [...new Set(names.map(String).filter(Boolean))].slice(0, 20)]));
+  } catch { return null; }
+}
+
+function loadGroupVotes() {
+  const shared = new URL(location.href).searchParams.get("group");
+  if (shared) return decodeGroupState(shared) || {};
+  try { return JSON.parse(localStorage.getItem("nescio-group-shortlist-v2") || "{}"); }
+  catch { return {}; }
+}
+
+let groupVotes = loadGroupVotes();
+let currentMember = localStorage.getItem("nescio-member-name") || "";
+function syncGroupState() {
+  try { localStorage.setItem("nescio-group-shortlist-v2", JSON.stringify(groupVotes)); } catch { /* storage may be disabled */ }
+  const url = new URL(location.href);
+  const hasVotes = Object.values(groupVotes).some(names => names.length);
+  hasVotes ? url.searchParams.set("group", encodeGroupState(groupVotes)) : url.searchParams.delete("group");
+  history.replaceState(null, "", url);
+}
+
 let activeIdeaPlace = "Alle";
 function renderIdeas() {
   const places = ["Alle", ...new Set(ideas.map(item => item.place))];
   $("[data-idea-filters]").innerHTML = places.map(place => `<button class="chip ${place === activeIdeaPlace ? "active" : ""}" type="button" data-idea-place="${place}">${place}</button>`).join("");
-  $("[data-ideas]").innerHTML = ideas.map(item => `
+  $("[data-ideas]").innerHTML = ideas.map(item => {
+    const voters = groupVotes[item.id] || [];
+    const chosenByMe = Boolean(currentMember && voters.includes(currentMember));
+    return `
     <article class="idea-card" data-idea-card="${item.place}" ${activeIdeaPlace !== "Alle" && activeIdeaPlace !== item.place ? "hidden" : ""}>
       <div class="idea-image" style="background-image:url('${item.image}')"></div>
       <div class="idea-body">
         <div class="idea-top"><span>${item.place}</span><span>${item.vibe}</span></div>
         <h3>${item.title}</h3><p>${item.copy}</p>
         <div class="idea-meta"><span>◷ ${item.time}</span><span>·</span><span>${item.cost}</span></div>
-        <button class="save-idea ${shortlist.has(item.id) ? "saved" : ""}" type="button" data-save-idea="${item.id}" aria-pressed="${shortlist.has(item.id)}">${shortlist.has(item.id) ? "✓ Staat op mijn shortlist" : "+ Zet op mijn shortlist"}</button>
+        <div class="idea-voters">${voters.map(name => `<span class="voter"><i>${name.slice(0,1).toUpperCase()}</i>${name}</span>`).join("")}</div>
+        <button class="save-idea ${chosenByMe ? "saved" : ""}" type="button" data-save-idea="${item.id}" aria-pressed="${chosenByMe}">${chosenByMe ? "✓ Door jou gekozen" : "+ Zet op mijn shortlist"}</button>
+        <button class="idea-gallery" type="button" data-idea-gallery="${item.place}">Bekijk foto's van ${item.place} ↗</button>
       </div>
-    </article>`).join("");
-  $("[data-shortlist-count]").textContent = shortlist.size;
+    </article>`;
+  }).join("");
+  $("[data-shortlist-count]").textContent = Object.values(groupVotes).filter(names => names.length).length;
 
   $$("[data-idea-place]").forEach(button => button.addEventListener("click", () => {
     activeIdeaPlace = button.dataset.ideaPlace;
     renderIdeas();
   }));
   $$("[data-save-idea]").forEach(button => button.addEventListener("click", () => {
+    const name = currentMember.trim();
+    if (!name) {
+      $("[data-member-name]").focus();
+      toast("Vul eerst je naam in");
+      return;
+    }
     const id = button.dataset.saveIdea;
-    shortlist.has(id) ? shortlist.delete(id) : shortlist.add(id);
-    saveSet("nescio-shortlist", shortlist);
+    const voters = groupVotes[id] || [];
+    groupVotes[id] = voters.includes(name) ? voters.filter(voter => voter !== name) : [...voters, name];
+    if (!groupVotes[id].length) delete groupVotes[id];
+    syncGroupState();
     renderIdeas();
   }));
+  $$("[data-idea-gallery]").forEach(button => button.addEventListener("click", () => openGallery(button.dataset.ideaGallery)));
+}
+
+async function shareGroupState() {
+  syncGroupState();
+  const data = { title: "JC Nescio groepsshortlist", text: "Bekijk wie welke activiteiten heeft gekozen voor Brazilië 2026.", url: location.href };
+  try {
+    if (navigator.share) await navigator.share(data);
+    else { await navigator.clipboard.writeText(location.href); toast("Groepslink gekopieerd"); }
+  } catch (error) { if (error.name !== "AbortError") toast("Delen lukte niet"); }
+}
+
+function initGroupShortlist() {
+  const input = $("[data-member-name]");
+  input.value = currentMember;
+  input.addEventListener("input", () => {
+    currentMember = input.value.trim();
+    try { localStorage.setItem("nescio-member-name", currentMember); } catch { /* storage may be disabled */ }
+    renderIdeas();
+  });
+  input.addEventListener("keydown", event => { if (event.key === "Enter") input.blur(); });
+  $("[data-share-group]").addEventListener("click", shareGroupState);
 }
 
 function renderTravelInfo() {
@@ -249,7 +403,9 @@ function initNavigation() {
 renderItinerary();
 initProgramFilters();
 initRoute();
+initPhotoDialog();
 renderIdeas();
+initGroupShortlist();
 renderTravelInfo();
 initNavigation();
 updateCountdown();

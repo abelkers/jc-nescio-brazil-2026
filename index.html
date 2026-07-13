@@ -87,7 +87,14 @@
           <span class="map-caption">Schematische route · werkt ook zonder kaarttegels</span>
         </div>
         <aside class="stop-card" aria-live="polite">
-          <div class="stop-photo" data-stop-photo></div>
+          <div class="stop-photo" data-stop-photo>
+            <button class="photo-open" type="button" data-open-current-gallery aria-label="Open fotoalbum van deze bestemming">Bekijk album ↗</button>
+            <div class="photo-arrows" aria-label="Blader door foto's">
+              <button type="button" data-stop-prev aria-label="Vorige foto">←</button>
+              <span data-stop-photo-count>1 / 3</span>
+              <button type="button" data-stop-next aria-label="Volgende foto">→</button>
+            </div>
+          </div>
           <div class="stop-content">
             <p class="eyebrow" data-stop-index>STOP 01</p>
             <h3 data-stop-name>Salvador</h3>
@@ -124,7 +131,16 @@
     <section class="ideas-section section" id="doen" aria-labelledby="ideas-title">
       <div class="section-heading light-heading">
         <div><p class="eyebrow light">NOG TE KIEZEN</p><h2 id="ideas-title">De shortlist</h2></div>
-        <p>Geen onhandige “optioneel”-labels meer: hier staat alles wat nog leuk kán worden. Bewaar je favorieten op dit apparaat.</p>
+        <p>Geen onhandige “optioneel”-labels meer: hier staat alles wat nog leuk kán worden. Namen en keuzes kunnen samen worden doorgestuurd.</p>
+      </div>
+      <div class="group-shortlist-panel">
+        <div>
+          <p class="eyebrow light">WIE KIEST WAT?</p>
+          <h3>Groepsshortlist</h3>
+          <p>Vul je naam in en zet activiteiten op je lijst. Namen verschijnen direct onder elke keuze en reizen mee in de gedeelde groepslink. Deel na wijzigingen steeds de nieuwste groepsstand.</p>
+        </div>
+        <label class="member-name"><span>Jouw naam</span><input type="text" maxlength="24" placeholder="Bijv. Abel" data-member-name></label>
+        <button class="button orange" type="button" data-share-group>Deel groepsstand ↗</button>
       </div>
       <div class="ideas-toolbar">
         <div class="filter-chips dark" role="group" aria-label="Filter activiteiten op locatie" data-idea-filters></div>
@@ -178,11 +194,11 @@
 
     <section class="gallery-section" aria-labelledby="gallery-title">
       <div class="gallery-title"><p class="eyebrow light">DE ROUTE IN BEELD</p><h2 id="gallery-title">Van jungle tot oceaan</h2></div>
-      <figure class="gallery-shot chapada"><figcaption><b>Vale do Pati</b><span>3 dagen hiken</span></figcaption></figure>
-      <figure class="gallery-shot itacare"><figcaption><b>Itacaré</b><span>strand & surf</span></figcaption></figure>
-      <figure class="gallery-shot petropolis"><figcaption><b>Petrópolis</b><span>keizerlijke tussenstop</span></figcaption></figure>
-      <figure class="gallery-shot rio"><figcaption><b>Rio de Janeiro</b><span>cidade maravilhosa</span></figcaption></figure>
-      <figure class="gallery-shot ilha"><figcaption><b>Ilha Grande</b><span>de finale</span></figcaption></figure>
+      <button class="gallery-shot chapada" type="button" data-open-gallery="Lençóis"><span><b>Vale do Pati</b><small>3 dagen hiken · open 3 foto's</small></span></button>
+      <button class="gallery-shot itacare" type="button" data-open-gallery="Itacaré"><span><b>Itacaré</b><small>strand & surf · open 3 foto's</small></span></button>
+      <button class="gallery-shot petropolis" type="button" data-open-gallery="Petrópolis"><span><b>Petrópolis</b><small>keizerlijke tussenstop · open 3 foto's</small></span></button>
+      <button class="gallery-shot rio" type="button" data-open-gallery="Rio de Janeiro"><span><b>Rio de Janeiro</b><small>cidade maravilhosa · open 3 foto's</small></span></button>
+      <button class="gallery-shot ilha" type="button" data-open-gallery="Ilha Grande"><span><b>Ilha Grande</b><small>de finale · open 3 foto's</small></span></button>
     </section>
 
     <section class="share-cta">
@@ -194,9 +210,22 @@
   <footer>
     <div class="footer-brand"><span class="brand-mark"><img src="assets/jc-nescio-logo.png" alt=""></span><p><strong>JC NESCIO</strong><br>Brazilië · 2026</p></div>
     <p>Gebouwd als gedeelde reisgids voor 10 vrienden.<br>Planning op basis van de aangeleverde offerte en het reisschema.</p>
-    <details class="credits"><summary>Fotobronnen & credits</summary><p>Salvador: Celso Hashimoto, Unsplash. Rio: Raphael Nogueira, Unsplash. Vale do Pati: Jardelsliumba, Wikimedia Commons (CC BY-SA 3.0). Itacaré: Rivieiraa, Wikimedia Commons (CC BY-SA 4.0). Petrópolis: Guilherme Tonelli, Wikimedia Commons (CC BY-SA 4.0). Ilha Grande: Fulviusbsas, Wikimedia Commons (publiek domein). De routekaart is een schematische weergave.</p></details>
+    <details class="credits"><summary>Fotobronnen & credits</summary><p>Elk fotoalbum vermeldt de fotograaf en licentie in het bijschrift. De beelden komen uit Unsplash en Wikimedia Commons en omvatten werk van Celso Hashimoto, Raphael Nogueira, Jardelsliumba, Rivieiraa, Guilherme Tonelli, Fulviusbsas en de overige makers die per foto worden genoemd. De routekaart is een schematische weergave.</p></details>
     <a href="#top">Naar boven ↑</a>
   </footer>
+
+  <dialog class="photo-dialog" data-photo-dialog aria-labelledby="photo-dialog-title">
+    <div class="dialog-topbar">
+      <div><p class="eyebrow" data-dialog-place>BESTEMMING</p><h2 id="photo-dialog-title" data-dialog-title>Fotoalbum</h2></div>
+      <button type="button" class="dialog-close" data-dialog-close aria-label="Fotoalbum sluiten">×</button>
+    </div>
+    <div class="dialog-stage">
+      <button type="button" data-dialog-prev aria-label="Vorige foto">←</button>
+      <figure><img src="" alt="" data-dialog-image><figcaption data-dialog-caption></figcaption></figure>
+      <button type="button" data-dialog-next aria-label="Volgende foto">→</button>
+    </div>
+    <div class="dialog-thumbs" data-dialog-thumbs></div>
+  </dialog>
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
   <script src="app.js" defer></script>
