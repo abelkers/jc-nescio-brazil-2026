@@ -84,17 +84,17 @@ img { display: block; max-width: 100%; }
 .route-section { background: var(--cream); }
 .route-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, .85fr); min-height: 720px; background: var(--green); border-radius: 34px; overflow: hidden; box-shadow: var(--shadow); }
 .route-map { position: relative; min-height: 720px; overflow: hidden; background: radial-gradient(circle at 88% 13%, rgba(198,255,56,.18), transparent 22%), linear-gradient(135deg, #153f35, #0c3028); }
-.map-grid { position: absolute; inset: 0; opacity: .13; background-image: linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(90deg, black, transparent); }
-.map-shape { position: absolute; inset: 0; width: 100%; height: 100%; }
-.map-shape path { fill: rgba(255,255,255,.035); stroke: rgba(255,255,255,.15); stroke-width: 2; }
-.map-shape polyline { fill: none; stroke: var(--orange); stroke-width: 4; stroke-dasharray: 4 10; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(242,106,46,.5)); }
-.route-point { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%,-50%); border: 0; background: transparent; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 3; }
-.route-point span { width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center; background: var(--green-3); border: 2px solid var(--orange); font-size: 9px; font-weight: 900; box-shadow: 0 0 0 6px rgba(242,106,46,.12); transition: .2s ease; }
-.route-point b { position: absolute; left: 43px; white-space: nowrap; font-size: 11px; letter-spacing: .04em; background: rgba(5,28,24,.76); padding: 6px 8px; border-radius: 6px; }
-.route-point.left b { left: auto; right: 43px; }
-.route-point:hover span, .route-point.active span { background: var(--lime); color: var(--green-3); border-color: var(--lime); transform: scale(1.18); }
-.route-point:focus-visible { outline: 2px solid white; outline-offset: 8px; border-radius: 50%; }
-.map-caption { position: absolute; left: 24px; bottom: 20px; color: rgba(255,255,255,.5); font-size: 10px; letter-spacing: .08em; }
+.leaflet-map { position:absolute; inset:0; background:#153f35; }
+.leaflet-map .leaflet-tile-pane { filter:saturate(.72) sepia(.08) contrast(.92); }
+.leaflet-map .leaflet-control-zoom a { color:var(--green-3); }
+.leaflet-map .leaflet-control-attribution { background:rgba(255,255,255,.82); color:#375249; font-size:9px; }
+.leaflet-map .leaflet-control-attribution a { color:var(--green); }
+.route-marker { background:transparent; border:0; }
+.route-pin { width:38px; height:38px; display:grid; place-items:center; border-radius:50%; background:var(--green-3); color:white; border:3px solid var(--orange); box-shadow:0 0 0 7px rgba(242,106,46,.2), 0 7px 18px rgba(5,28,24,.32); font-size:10px; font-weight:900; transition:.2s ease; }
+.route-marker.active .route-pin, .route-marker:hover .route-pin { background:var(--lime); color:var(--green-3); border-color:var(--lime); transform:scale(1.16); }
+.route-tooltip { padding:6px 9px; border:0; border-radius:7px; background:rgba(5,28,24,.9); color:white; box-shadow:none; font-size:10px; font-weight:850; }
+.route-tooltip::before { display:none; }
+.map-caption { position: absolute; z-index:500; left: 18px; bottom: 18px; padding:8px 10px; border-radius:8px; background:rgba(5,28,24,.82); color:rgba(255,255,255,.82); font-size:9px; letter-spacing:.07em; pointer-events:none; }
 .stop-card { margin: 18px 18px 18px 0; background: var(--paper); border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; }
 .stop-photo { min-height: 300px; background-size: cover; background-position: center; transition: background-image .3s ease; position: relative; }
 .stop-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(5,28,24,.72), transparent 52%); pointer-events:none; }
@@ -199,6 +199,24 @@ img { display: block; max-width: 100%; }
 .info-card h3 { font-size: clamp(28px, 3vw, 42px); letter-spacing: -.045em; margin-bottom: 14px; }
 .card-icon { float: right; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--lime); color: var(--green-3); font-size: 20px; font-weight: 900; }
 .muted { color: var(--muted); line-height: 1.6; }
+.flight-tabs { display:flex; gap:7px; margin:24px 0 22px; }
+.flight-tabs button { flex:1; min-height:40px; padding:0 9px; border:1px solid var(--line); border-radius:999px; background:transparent; color:var(--green); font-size:10px; font-weight:850; cursor:pointer; }
+.flight-tabs button:hover, .flight-tabs button[aria-selected="true"] { background:var(--green); color:white; border-color:var(--green); }
+.flight-journey { min-height:270px; }
+.flight-journey-head { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:20px; }
+.flight-journey-head h4 { margin:0 0 5px; font-size:18px; }
+.flight-journey-head p { margin:0; color:var(--muted); font-size:11px; }
+.flight-party { flex:0 0 auto; padding:6px 9px; border-radius:999px; background:var(--lime); color:var(--green-3); font-size:9px; font-weight:900; }
+.flight-steps { position:relative; display:grid; gap:0; }
+.flight-step { position:relative; display:grid; grid-template-columns:34px 1fr auto; gap:12px; min-height:66px; padding-bottom:14px; }
+.flight-step:not(:last-child)::after { content:""; position:absolute; left:12px; top:27px; bottom:-1px; width:2px; background:var(--line); }
+.flight-step-icon { position:relative; z-index:1; width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:var(--green); color:white; font-size:11px; }
+.flight-step b { display:block; font-size:13px; margin-bottom:3px; }
+.flight-step small { display:block; color:var(--muted); font-size:10px; line-height:1.45; }
+.flight-step time { color:var(--orange); font-size:10px; font-weight:850; white-space:nowrap; }
+.flight-open { margin:4px 0 0 46px; padding:10px 12px; border-left:3px solid var(--orange); background:#fff1e9; color:#75402b; font-size:10px; line-height:1.5; }
+.flight-prices { margin-top:20px; border-top:1px solid var(--line); }
+.flight-prices summary { padding:16px 0 0; color:var(--green); font-size:11px; font-weight:850; cursor:pointer; }
 .price-rows { margin-top: 28px; border-top: 1px solid var(--line); }
 .price-rows > div, .total-row { display: flex; justify-content: space-between; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
 .price-rows span b { color: var(--orange); margin-right: 6px; }

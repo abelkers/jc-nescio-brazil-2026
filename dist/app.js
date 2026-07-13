@@ -54,6 +54,51 @@ const stops = {
   "Ilha Grande": { index: "06", dates: "20–23 oktober", nights: "3", stay: "Holandês Hostel", copy: "Een autovrij eiland als finale: boot, jungle, Lopes Mendes en Pico do Papagaio.", query: "Ilha Grande" }
 };
 
+const routeCoordinates = {
+  Salvador: [-12.9777, -38.5016],
+  "Lençóis": [-12.5616, -41.3927],
+  "Itacaré": [-14.2789, -38.9958],
+  "Petrópolis": [-22.5050, -43.1786],
+  "Rio de Janeiro": [-22.9068, -43.1729],
+  "Ilha Grande": [-23.1416, -44.1665]
+};
+
+const flightJourneys = {
+  outbound: {
+    title: "Amsterdam → Salvador",
+    date: "3 oktober 2026",
+    party: "10 reizigers",
+    open: "Vluchtnummer, vertrektijd, eventuele overstap en bagagedrop nog invullen vanuit de definitieve KLM-boeking.",
+    steps: [
+      ["✈", "Amsterdam Schiphol", "Vertrek met KLM · tijd nog onbekend", "OPEN"],
+      ["●", "Salvador Airport", "Aankomsttijd vlucht nog bevestigen", "3 OKT"],
+      ["↗", "Nomads Multicultural", "Airport pick-up en transfer van circa 30 min", "15:40"]
+    ]
+  },
+  early: {
+    title: "Rio → Amsterdam",
+    date: "19 oktober 2026",
+    party: "2 reizigers",
+    open: "Wie vroeg terugvliegt, de airporttransfer, vluchtnummer en vertrektijd moeten nog aan namen worden gekoppeld.",
+    steps: [
+      ["○", "Mango Tree · Rio", "Bagage ophalen na of rond footvolley", "19 OKT"],
+      ["→", "Rio Airport", "Transferduur en vertrekluchthaven nog open", "OPEN"],
+      ["✈", "Amsterdam Schiphol", "1× zonder en 1× met ruimbagage", "OPEN"]
+    ]
+  },
+  main: {
+    title: "Ilha Grande → Amsterdam",
+    date: "23 oktober 2026",
+    party: "8 reizigers",
+    open: "Het schema noemt ‘naar huis 22:00’; controleer of dit de echte vluchttijd is en leg boot + transfer ruim genoeg vast.",
+    steps: [
+      ["≈", "Ilha Grande → Angra", "Boot naar het vasteland · vaartijd nog open", "23 OKT"],
+      ["→", "Angra → Rio Airport", "Wegtransfer volgens het schema", "3,5 U"],
+      ["✈", "Rio → Amsterdam", "KLM · vluchtnummer nog onbekend", "22:00?"]
+    ]
+  }
+};
+
 const itinerary = [
   { day: 1, date: "3 okt", weekday: "zaterdag", place: "Salvador", activity: "Welkom in Brazilië", sub: "Airport pick-up om 15:40, lokale drankjes en 1 e-sim.", stay: "Nomads Multicultural · private dorm", tags: ["aankomst", "0,5 u transfer"], types: ["travel"], details: "Transfer van Salvador Airport naar de stad. De aangeleverde planning noemt lokale drankjes en één e-sim bij aankomst." },
   { day: 2, date: "4 okt", weekday: "zondag", place: "Salvador", activity: "City tour Salvador", sub: "Een eerste volle dag tussen historie, muziek en Bahiaanse kleuren.", stay: "Nomads Multicultural · private dorm", tags: ["3 uur", "cultuur"], types: ["active"], details: "Duur volgens het schema: 3 uur. Een logische route loopt via Pelourinho, Elevador Lacerda en Mercado Modelo; de exacte tourinhoud moet nog worden bevestigd." },
@@ -251,6 +296,8 @@ function initProgramFilters() {
 
 let currentStop = "Salvador";
 let stopPhotoIndex = 0;
+const routeMarkers = new Map();
+let routeMap;
 function updateStopPhoto() {
   const images = galleries[currentStop];
   const image = images[stopPhotoIndex];
@@ -262,7 +309,7 @@ function selectStop(name) {
   const stop = stops[name];
   currentStop = name;
   stopPhotoIndex = 0;
-  $$(".route-point").forEach(button => button.classList.toggle("active", button.dataset.stop === name));
+  routeMarkers.forEach((marker, markerName) => marker.getElement()?.classList.toggle("active", markerName === name));
   updateStopPhoto();
   $("[data-stop-index]").textContent = `STOP ${stop.index}`;
   $("[data-stop-name]").textContent = name;
@@ -274,7 +321,39 @@ function selectStop(name) {
 }
 
 function initRoute() {
-  $$(".route-point").forEach(button => button.addEventListener("click", () => selectStop(button.dataset.stop)));
+  const mapNode = $("[data-route-map]");
+  if (window.L && mapNode) {
+    routeMap = L.map(mapNode, { scrollWheelZoom: false, zoomControl: true, minZoom: 4, maxZoom: 12 });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(routeMap);
+
+    const points = Object.entries(routeCoordinates);
+    const latLngs = points.map(([, coordinates]) => coordinates);
+    L.polyline(latLngs, { color: "#fff7df", weight: 8, opacity: .88 }).addTo(routeMap);
+    L.polyline(latLngs, { color: "#f26a2e", weight: 4, opacity: 1, dashArray: "2 10", lineCap: "round" }).addTo(routeMap);
+
+    points.forEach(([name, coordinates]) => {
+      const stop = stops[name];
+      const marker = L.marker(coordinates, {
+        title: `Stop ${stop.index}: ${name}`,
+        keyboard: true,
+        icon: L.divIcon({ className: "route-marker", html: `<span class="route-pin">${stop.index}</span>`, iconSize: [38, 38], iconAnchor: [19, 19] })
+      }).addTo(routeMap);
+      marker.bindTooltip(name === "Rio de Janeiro" ? "Rio" : name, {
+        permanent: true,
+        direction: ["Salvador", "Itacaré"].includes(name) ? "right" : "left",
+        offset: [name === "Salvador" || name === "Itacaré" ? 18 : -18, 0],
+        className: "route-tooltip"
+      });
+      marker.on("click", () => selectStop(name));
+      routeMarkers.set(name, marker);
+    });
+    routeMap.fitBounds(latLngs, { padding: [56, 56] });
+    L.control.scale({ imperial: false, position: "bottomright" }).addTo(routeMap);
+    setTimeout(() => routeMap.invalidateSize(), 0);
+  }
   $("[data-stop-prev]").addEventListener("click", () => {
     stopPhotoIndex = (stopPhotoIndex - 1 + galleries[currentStop].length) % galleries[currentStop].length;
     updateStopPhoto();
@@ -292,6 +371,27 @@ function initRoute() {
     $("#programma").scrollIntoView({ behavior: "smooth" });
   });
   selectStop("Salvador");
+}
+
+function renderFlightJourney(key) {
+  const journey = flightJourneys[key];
+  $("[data-flight-journey]").innerHTML = `
+    <div class="flight-journey-head">
+      <div><h4>${journey.title}</h4><p>${journey.date}</p></div>
+      <span class="flight-party">${journey.party}</span>
+    </div>
+    <div class="flight-steps">
+      ${journey.steps.map(step => `<div class="flight-step"><span class="flight-step-icon" aria-hidden="true">${step[0]}</span><div><b>${step[1]}</b><small>${step[2]}</small></div><time>${step[3]}</time></div>`).join("")}
+    </div>
+    <p class="flight-open"><b>Nog bevestigen:</b> ${journey.open}</p>`;
+}
+
+function initFlights() {
+  $$('[data-flight-tab]').forEach(button => button.addEventListener("click", () => {
+    $$('[data-flight-tab]').forEach(tab => tab.setAttribute("aria-selected", String(tab === button)));
+    renderFlightJourney(button.dataset.flightTab);
+  }));
+  renderFlightJourney("outbound");
 }
 
 let dialogPlace = "Salvador";
@@ -638,6 +738,7 @@ initPhotoDialog();
 renderIdeas();
 initGroupShortlist();
 renderTravelInfo();
+initFlights();
 initNavigation();
 updateCountdown();
 setInterval(updateCountdown, 60000);
