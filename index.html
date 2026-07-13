@@ -12,6 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="preconnect" href="https://commons.wikimedia.org">
+  <link rel="stylesheet" href="assets/vendor/leaflet.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -72,19 +73,9 @@
         <p>Zes haltes, twintig nachten en één flinke dwarsdoorsnede van de Braziliaanse kust. Tik op een plek voor de details.</p>
       </div>
       <div class="route-layout">
-        <div class="route-map" aria-label="Interactieve schematische kaart van de route">
-          <div class="map-grid"></div>
-          <svg class="map-shape" viewBox="0 0 640 760" aria-hidden="true">
-            <path d="M411 22c71 28 126 76 158 137 32 60 17 134-1 191-20 62-61 104-96 144-38 43-65 95-102 147-29 41-63 88-110 104-48 16-113-15-139-57-21-34-5-87 13-124 20-42 32-84 40-130 10-56-13-112 2-169 17-65 69-103 117-145 42-36 68-91 118-98Z"/>
-            <polyline points="515,112 430,201 530,330 344,565 304,614 206,690"/>
-          </svg>
-          <button class="route-point active" style="--x:80.5%;--y:14.8%" data-stop="Salvador"><span>01</span><b>Salvador</b></button>
-          <button class="route-point" style="--x:67.2%;--y:26.5%" data-stop="Lençóis"><span>02</span><b>Lençóis</b></button>
-          <button class="route-point" style="--x:82.8%;--y:43.5%" data-stop="Itacaré"><span>03</span><b>Itacaré</b></button>
-          <button class="route-point left" style="--x:53.7%;--y:74.2%" data-stop="Petrópolis"><span>04</span><b>Petrópolis</b></button>
-          <button class="route-point left" style="--x:47.5%;--y:80.8%" data-stop="Rio de Janeiro"><span>05</span><b>Rio</b></button>
-          <button class="route-point left" style="--x:32.1%;--y:90.8%" data-stop="Ilha Grande"><span>06</span><b>Ilha Grande</b></button>
-          <span class="map-caption">Schematische route · werkt ook zonder kaarttegels</span>
+        <div class="route-map">
+          <div class="leaflet-map" data-route-map aria-label="Interactieve kaart van de reisroute van Salvador naar Ilha Grande"></div>
+          <span class="map-caption">Sleep en zoom · tik op een halte voor details</span>
         </div>
         <aside class="stop-card" aria-live="polite">
           <div class="stop-photo" data-stop-photo>
@@ -161,15 +152,22 @@
       </div>
       <div class="travel-grid">
         <article class="info-card flights-card">
-          <div class="card-icon">✈</div><p class="eyebrow">VLUCHTEN</p><h3>Amsterdam → Salvador<br>Rio → Amsterdam</h3>
-          <p class="muted">KLM-retour volgens de aangeleverde offerte. Vluchtnummers en tijden ontbreken nog.</p>
-          <div class="price-rows">
-            <div><span><b>8×</b> hoofdretour incl. ruimbagage</span><strong>€ 982 p.p.</strong></div>
-            <div><span><b>1×</b> retour op 19 okt, zonder ruimbagage</span><strong>€ 816</strong></div>
-            <div><span><b>1×</b> retour op 19 okt, incl. ruimbagage</span><strong>€ 937</strong></div>
+          <div class="card-icon">✈</div><p class="eyebrow">REISTIJDLIJN</p><h3>Heen & terug</h3>
+          <p class="muted">Kies een reismoment. Alles wat nog niet in de offerte staat, is duidelijk als open punt gemarkeerd.</p>
+          <div class="flight-tabs" role="tablist" aria-label="Kies een vliegreis">
+            <button type="button" role="tab" aria-selected="true" data-flight-tab="outbound">Heen · 10</button>
+            <button type="button" role="tab" aria-selected="false" data-flight-tab="early">Terug · 2</button>
+            <button type="button" role="tab" aria-selected="false" data-flight-tab="main">Terug · 8</button>
           </div>
-          <div class="total-row"><span>Totaal voor 10</span><strong>€ 9.609</strong></div>
-          <p class="notice"><b>Let op:</b> twee reizigers vliegen op 19 oktober terug, terwijl de groep doorreist naar Ilha Grande.</p>
+          <div class="flight-journey" data-flight-journey role="tabpanel" aria-live="polite"></div>
+          <details class="flight-prices">
+            <summary>Bekijk prijsverdeling · totaal € 9.609</summary>
+            <div class="price-rows">
+              <div><span><b>8×</b> hoofdretour incl. ruimbagage</span><strong>€ 982 p.p.</strong></div>
+              <div><span><b>1×</b> retour 19 okt, zonder ruimbagage</span><strong>€ 816</strong></div>
+              <div><span><b>1×</b> retour 19 okt, incl. ruimbagage</span><strong>€ 937</strong></div>
+            </div>
+          </details>
         </article>
 
         <article class="info-card stays-card">
@@ -215,7 +213,7 @@
   <footer>
     <div class="footer-brand"><span class="brand-mark"><img src="assets/jc-nescio-logo.png" alt=""></span><p><strong>JC NESCIO</strong><br>Brazilië · 2026</p></div>
     <p>Gebouwd als gedeelde reisgids voor 10 vrienden.<br>Planning op basis van de aangeleverde offerte en het reisschema.</p>
-    <details class="credits"><summary>Fotobronnen & credits</summary><p>Elk fotoalbum vermeldt de fotograaf en licentie in het bijschrift. De vaste beelden komen uit Unsplash en Wikimedia Commons; extra sfeerbeelden worden bij het openen rechtstreeks opgehaald uit Wikimedia Commons. De routekaart is een schematische weergave.</p></details>
+    <details class="credits"><summary>Fotobronnen & kaartcredits</summary><p>Elk fotoalbum vermeldt de fotograaf en licentie in het bijschrift. De vaste beelden komen uit Unsplash en Wikimedia Commons; extra sfeerbeelden worden bij het openen rechtstreeks opgehaald uit Wikimedia Commons. Kaartgegevens © OpenStreetMap-bijdragers.</p></details>
     <a href="#top">Naar boven ↑</a>
   </footer>
 
@@ -233,6 +231,7 @@
   </dialog>
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
+  <script src="assets/vendor/leaflet.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
