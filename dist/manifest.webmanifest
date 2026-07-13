@@ -1,7 +1,7 @@
 {
   "name": "JC Nescio Lustrumvakantie – Brazilië 2026",
   "short_name": "Nescio Brasil",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f3edda",
   "theme_color": "#123f34",
