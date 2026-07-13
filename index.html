@@ -128,10 +128,11 @@
         <div>
           <p class="eyebrow light">WIE KIEST WAT?</p>
           <h3>Groepsshortlist</h3>
-          <p>Vul je naam in en zet activiteiten op je lijst. Namen verschijnen direct onder elke keuze en reizen mee in de gedeelde groepslink. Deel na wijzigingen steeds de nieuwste groepsstand.</p>
+          <p>Vul je naam in en zet activiteiten op je lijst. Namen verschijnen direct onder elke keuze en worden live met de groep gesynchroniseerd.</p>
         </div>
         <label class="member-name"><span>Jouw naam</span><input type="text" maxlength="24" placeholder="Bijv. Abel" data-member-name></label>
-        <button class="button orange" type="button" data-share-group>Deel groepsstand ↗</button>
+        <button class="button orange" type="button" data-share-group>Deel website ↗</button>
+        <small class="live-status" data-live-status aria-live="polite">Groepsshortlist laden…</small>
       </div>
       <div class="origin-legend" aria-label="Herkomst van activiteiten">
         <span class="origin-badge proposal">Stond in reisvoorstel</span><p>6 optionele activiteiten waren al concreet genoemd.</p>
@@ -232,6 +233,7 @@
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
   <script src="assets/vendor/leaflet.js?v=20260713b" defer></script>
-  <script src="app.js?v=20260713b" defer></script>
+  <script src="assets/vendor/supabase.min.js?v=20260713c" defer></script>
+  <script src="app.js?v=20260713c" defer></script>
 </body>
 </html>
