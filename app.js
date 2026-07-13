@@ -90,6 +90,7 @@ const ideas = [
   { id: "lencois-caves", place: "Lençóis", title: "Grottencircuit: Lapa Doce & Pratinha", copy: "Ondergrondse zalen, helder water en geologische formaties als rustigere dagtrip.", time: "volle dag", cost: "€€", vibe: "grotten", image: photos["Lençóis"], search: "Lapa Doce Pratinha Chapada Diamantina", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
   { id: "lencois-marimbus", place: "Lençóis", title: "Kanoën door Marimbus", copy: "Vier uur varen door het stille ‘Pantanal van Chapada’ vanuit de quilombola-gemeenschap Remanso.", time: "volle dag", cost: "€€", vibe: "water", image: photos["Lençóis"], search: "Marimbus Chapada Diamantina canoe", source: "https://feel.visitbrasil.com/en/marimbus-pantanal/" },
   { id: "lencois-bike", place: "Lençóis", title: "Mountainbike naar Barro Branco", copy: "Technische oude mijnwerkerspaden met rivierbaden; vooral voor ervaren mountainbikers.", time: "volle dag", cost: "€€€", vibe: "sport", image: photos["Lençóis"], search: "mountain bike Chapada Diamantina Lencois", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
+  { id: "lencois-azul", place: "Lençóis", title: "Diner bij Restaurant Azul", copy: "De optionele dinerreservering die op 9 oktober al in het oorspronkelijke reisvoorstel staat.", time: "avond", cost: "€€", vibe: "diner", image: photos["Lençóis"], search: "restaurant dinner Lencois Bahia Brazil", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
 
   { id: "itacare-beaches", place: "Itacaré", title: "Trail langs vier stranden", copy: "Havaizinho, Engenhoca, Camboinha en Itacarezinho in één dag.", time: "5–6 uur", cost: "€€", vibe: "actief", image: photos["Itacaré"], search: "Itacarezinho Engenhoca beach Itacare", source: "https://itacare.ba.gov.br/praias/" },
   { id: "itacare-surf", place: "Itacaré", title: "Surflessen", copy: "Beginnersles met materiaal op een strand dat bij de omstandigheden past.", time: "2–3 uur", cost: "€€", vibe: "sport", image: photos["Itacaré"], search: "surf Itacare Bahia", source: "https://itacare.ba.gov.br/esportes-e-aventura/" },
@@ -103,6 +104,7 @@ const ideas = [
   { id: "petropolis-dumont", place: "Petrópolis", title: "Casa de Santos Dumont", copy: "Een compact en eigenzinnig huis-museum van de Braziliaanse luchtvaartpionier.", time: "1–2 uur", cost: "€", vibe: "geschiedenis", image: photos["Petrópolis"], search: "Casa Santos Dumont Petropolis", source: "https://www.turismo.rj.gov.br/cidades/petropolis/" },
   { id: "petropolis-crystal", place: "Petrópolis", title: "Palácio de Cristal & kathedraal", copy: "Combineer twee iconen met een wandeling door het historische centrum.", time: "2–3 uur", cost: "€", vibe: "wandelen", image: photos["Petrópolis"], search: "Palacio de Cristal Petropolis cathedral", source: "https://www.turismo.rj.gov.br/cidades/petropolis/" },
   { id: "petropolis-serra", place: "Petrópolis", title: "Serra dos Órgãos-dagtocht", copy: "Kies een passende trail of waterval in het nationale park en regel vervoer vooraf.", time: "volle dag", cost: "€€", vibe: "natuur", image: photos["Petrópolis"], search: "Serra dos Orgaos Petropolis Brazil", source: "https://www.petropolis.rj.gov.br/turispetro/viva-essa-experiencia" },
+  { id: "petropolis-veu", place: "Petrópolis", title: "Hike naar Véu da Noiva", copy: "De optionele watervalhike die voor 15 oktober al in het oorspronkelijke reisvoorstel staat.", time: "halve dag", cost: "€€", vibe: "hike", image: photos["Petrópolis"], search: "Veu da Noiva waterfall Petropolis", source: "https://www.petropolis.rj.gov.br/turispetro/viva-essa-experiencia" },
 
   { id: "rio-sugarloaf", place: "Rio", title: "Sugarloaf bij zonsondergang", copy: "Klassiek Rio-uitzicht; reserveer een tijdslot en plan ruim rond zonsondergang.", time: "3 uur", cost: "€€€", vibe: "iconisch", image: photos["Rio de Janeiro"], search: "Pao de Acucar Sugarloaf Rio sunset", source: "https://riotur.rio/en/editorial/press-2/" },
   { id: "rio-samba", place: "Rio", title: "Samba-avond in Lapa", copy: "Live muziek en nachtelijk Rio. Spreek vervoer en een vaste terugtijd af.", time: "avond", cost: "€€", vibe: "nacht", image: photos["Rio de Janeiro"], search: "Lapa samba Rio de Janeiro", source: "https://riotur.rio/en/que_fazer/rio-nightlife/" },
@@ -122,7 +124,17 @@ const ideas = [
   { id: "ilha-dive", place: "Ilha Grande", title: "Duiken of discover scuba", copy: "Voor beginners of gebrevetteerde duikers; zicht en locatie hangen van de omstandigheden af.", time: "halve dag", cost: "€€€", vibe: "duiken", image: photos["Ilha Grande"], search: "scuba diving Ilha Grande Brazil", source: "https://www.ilhagrande.com.br/atrativos/lagoa-azul/" }
 ];
 
+const proposalIdeaIds = new Set([
+  "lencois-azul",
+  "petropolis-beer",
+  "petropolis-veu",
+  "rio-match",
+  "ilha-boat",
+  "ilha-papagaio"
+]);
+
 ideas.forEach(item => {
+  item.origin = proposalIdeaIds.has(item.id) ? "proposal" : "research";
   const key = `activity:${item.id}`;
   galleryQueries[key] = `${item.search} Brazil`;
   galleryLabels[key] = item.title;
@@ -302,6 +314,57 @@ async function enrichGallery(key) {
   return task;
 }
 
+const usedIdeaCovers = new Set();
+function applyIdeaCover(item, url) {
+  item.image = url;
+  const element = $(`[data-idea-image="${item.id}"]`);
+  if (element) {
+    element.style.backgroundImage = `url("${url}")`;
+    element.classList.add("loaded");
+  }
+}
+
+function seedIdeaCovers() {
+  usedIdeaCovers.clear();
+  ideas.forEach(item => {
+    const place = normalizeGalleryPlace(item.place);
+    const placeItems = ideas.filter(candidate => normalizeGalleryPlace(candidate.place) === place);
+    const placeIndex = placeItems.findIndex(candidate => candidate.id === item.id);
+    const cover = (galleries[place] || []).find((image, index) => index >= placeIndex && !usedIdeaCovers.has(image.url))
+      || (galleries[place] || []).find(image => !usedIdeaCovers.has(image.url));
+    if (cover) {
+      usedIdeaCovers.add(cover.url);
+      applyIdeaCover(item, cover.url);
+    }
+  });
+}
+
+async function loadIdeaCover(item) {
+  const galleryKey = `activity:${item.id}`;
+  const activityImages = await enrichGallery(galleryKey);
+  const place = normalizeGalleryPlace(item.place);
+  const placeItems = ideas.filter(candidate => normalizeGalleryPlace(candidate.place) === place);
+  const placeIndex = placeItems.findIndex(candidate => candidate.id === item.id);
+  const placeImages = galleries[place] || [];
+  const candidates = [...activityImages, ...placeImages.slice(placeIndex), ...placeImages.slice(0, placeIndex)];
+  usedIdeaCovers.delete(item.image);
+  const cover = candidates.find(image => image?.url && !usedIdeaCovers.has(image.url));
+  if (!cover) { usedIdeaCovers.add(item.image); return; }
+  usedIdeaCovers.add(cover.url);
+  applyIdeaCover(item, cover.url);
+}
+
+async function loadIdeaCovers() {
+  const queue = [...ideas];
+  const workers = Array.from({ length: 5 }, async () => {
+    while (queue.length) {
+      const item = queue.shift();
+      if (item) await loadIdeaCover(item);
+    }
+  });
+  await Promise.allSettled(workers);
+}
+
 function renderDialog() {
   const images = galleries[dialogPlace];
   const current = images[dialogIndex];
@@ -393,9 +456,10 @@ function renderIdeas() {
     const chosenByMe = Boolean(currentMember && voters.includes(currentMember));
     return `
     <article class="idea-card" data-idea-card="${item.place}" ${activeIdeaPlace !== "Alle" && activeIdeaPlace !== item.place ? "hidden" : ""}>
-      <div class="idea-image" style="background-image:url('${item.image}')"></div>
+      <div class="idea-image" data-idea-image="${item.id}" style="background-image:url('${item.image}')"></div>
       <div class="idea-body">
         <div class="idea-top"><span>${item.place}</span><span>${item.vibe}</span></div>
+        <span class="origin-badge ${item.origin}">${item.origin === "proposal" ? "Stond in reisvoorstel" : "Zelf opgezocht"}</span>
         <h3>${item.title}</h3><p>${item.copy}</p>
         <div class="idea-meta"><span>◷ ${item.time}</span><span>·</span><span>${item.cost}</span></div>
         <a class="idea-source" href="${item.source}" target="_blank" rel="noopener">Bekijk officiële inspiratie ↗</a>
@@ -520,4 +584,7 @@ renderTravelInfo();
 initNavigation();
 updateCountdown();
 setInterval(updateCountdown, 60000);
-Promise.allSettled(Object.keys(stops).map(place => enrichGallery(place)));
+Promise.allSettled(Object.keys(stops).map(place => enrichGallery(place))).then(() => {
+  seedIdeaCovers();
+  loadIdeaCovers();
+});
