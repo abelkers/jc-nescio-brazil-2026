@@ -133,10 +133,52 @@ const proposalIdeaIds = new Set([
   "ilha-papagaio"
 ]);
 
+const coverGuides = {
+  "salvador-capoeira": { query: "intitle:Capoeira Salvador", terms: ["capoeira", "berimbau"] },
+  "salvador-barra": { query: "Farol da Barra Salvador sunset", terms: ["farol da barra", "sunset", "pôr do sol", "salvador"] },
+  "salvador-afro": { query: "Pelourinho Salvador Afro Brazilian culture", terms: ["pelourinho", "afro", "salvador"] },
+  "salvador-food": { query: "intitle:Acaraje Bahia", terms: ["acarajé", "acaraje", "moqueca"] },
+  "salvador-bonfim": { query: "intitle:Bonfim Salvador", terms: ["bonfim"] },
+  "lencois-pai-inacio": { query: "Morro do Pai Inacio Chapada Diamantina", terms: ["pai inácio", "pai inacio"] },
+  "lencois-fumaca": { query: "Cachoeira da Fumaca Chapada Diamantina", terms: ["cachoeira da fumaça", "cachoeira da fumaca", "fumaca"] },
+  "lencois-caves": { query: "intitle:Lapa Doce", terms: ["lapa doce", "cave", "gruta"] },
+  "lencois-marimbus": { query: "intitle:Marimbus", terms: ["marimbus", "canoe", "canoa"] },
+  "lencois-bike": { query: "intitle:Mountain biking", terms: ["mountain bike", "mountain biking", "cycling", "bicicleta", "ciclismo"] },
+  "lencois-azul": { query: "intitle:Feijoada Brazil", terms: ["feijoada", "restaurant", "dinner", "cuisine", "food", "comida"] },
+  "itacare-beaches": { query: "Itacarezinho Engenhoca beach Itacare", terms: ["itacarezinho", "engenhoca", "itacare", "beach"] },
+  "itacare-surf": { query: "intitle:Surfing Brazil", terms: ["surf", "surfer", "surfing"] },
+  "itacare-waterfall": { query: "Cachoeira Tijuípe Itacare", terms: ["tijuípe", "tijuipe", "cachoeira", "waterfall"] },
+  "itacare-rafting": { query: "rafting Rio de Contas Bahia", terms: ["rafting", "rio de contas", "rapid"] },
+  "itacare-cacao": { query: "cacao cocoa chocolate Bahia", terms: ["cacao", "cacau", "cocoa", "chocolate"] },
+  "itacare-canoe": { query: "intitle:Kayak Brazil", terms: ["canoe", "canoa", "kayak", "caiaque"] },
+  "petropolis-museum": { query: "Museu Imperial Petropolis", terms: ["museu imperial", "imperial museum"] },
+  "petropolis-beer": { query: "beer brewery cerveja Brazil", terms: ["beer", "brewery", "cerveja", "cervejaria", "chope"] },
+  "petropolis-dumont": { query: "Casa Santos Dumont Petropolis", terms: ["santos dumont", "casa santos dumont"] },
+  "petropolis-crystal": { query: "intitle:Palacio de Cristal Petropolis", terms: ["palácio de cristal", "palacio de cristal"] },
+  "petropolis-serra": { query: "Serra dos Orgaos Petropolis mountain", terms: ["serra dos órgãos", "serra dos orgaos", "mountain"] },
+  "petropolis-veu": { query: "Veu da Noiva waterfall Petropolis", terms: ["véu da noiva", "veu da noiva", "waterfall", "cachoeira"] },
+  "rio-sugarloaf": { query: "Pao de Acucar Sugarloaf Rio sunset", terms: ["pão de açúcar", "pao de acucar", "sugarloaf", "sunset"] },
+  "rio-samba": { query: "intitle:Samba Rio", terms: ["samba"] },
+  "rio-match": { query: "Maracana football stadium Rio", terms: ["maracanã", "maracana", "football", "futebol"] },
+  "rio-pedra-bonita": { query: "Pedra Bonita Rio de Janeiro", terms: ["pedra bonita"] },
+  "rio-santa-teresa": { query: "intitle:Santa Teresa Rio tram", terms: ["santa teresa", "selarón", "selaron", "tram", "bonde"] },
+  "rio-tijuca": { query: "Tijuca Forest waterfall Rio", terms: ["tijuca", "waterfall", "cachoeira", "forest"] },
+  "rio-pedra-sal": { query: "intitle:Pedra do Sal", terms: ["pedra do sal", "samba"] },
+  "rio-museums": { query: "Museu do Amanha Rio museum", terms: ["museu do amanhã", "museu do amanha", "museum of tomorrow"] },
+  "ilha-boat": { query: "intitle:Boat Brazil sea", terms: ["boat", "speedboat", "lancha", "barco"] },
+  "ilha-lopes": { query: "Lopes Mendes Ilha Grande beach", terms: ["lopes mendes"] },
+  "ilha-papagaio": { query: "Pico do Papagaio Ilha Grande", terms: ["pico do papagaio"] },
+  "ilha-lagoa-azul": { query: "intitle:Snorkeling Brazil", terms: ["snorkel", "snorkeling"] },
+  "ilha-dois-rios": { query: "Dois Rios Ilha Grande beach", terms: ["dois rios"] },
+  "ilha-kayak": { query: "intitle:Kayaking Brazil", terms: ["kayak", "kayaking", "caiaque"] },
+  "ilha-dive": { query: "intitle:Scuba diving Brazil", terms: ["scuba", "diving", "mergulho", "diver"] }
+};
+
 ideas.forEach(item => {
   item.origin = proposalIdeaIds.has(item.id) ? "proposal" : "research";
+  item.coverTerms = coverGuides[item.id]?.terms || [];
   const key = `activity:${item.id}`;
-  galleryQueries[key] = `${item.search} Brazil`;
+  galleryQueries[key] = `${coverGuides[item.id]?.query || item.search} Brazil`;
   galleryLabels[key] = item.title;
   galleryFallbacks[key] = normalizeGalleryPlace(item.place);
 });
@@ -315,11 +357,28 @@ async function enrichGallery(key) {
 }
 
 const usedIdeaCovers = new Set();
-function applyIdeaCover(item, url) {
-  item.image = url;
+const blockedCoverTerms = ["medicine", "medic", "pharmacy", "drug", "tablet", "pill", "hospital", "logo", "flag", "map", "diagram", "poster", "painting", "artwork", "coat of arms", "portrait"];
+function normalizeCoverText(value = "") {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function scoreIdeaCover(image, item) {
+  const text = normalizeCoverText(image.caption);
+  if (blockedCoverTerms.some(term => text.includes(term))) return -1000;
+  return item.coverTerms.reduce((score, term) => {
+    const normalized = normalizeCoverText(term);
+    return score + (text.includes(normalized) ? (normalized.includes(" ") ? 16 : 7) : 0);
+  }, 0);
+}
+
+function applyIdeaCover(item, image) {
+  item.image = image.url;
+  item.coverCaption = image.caption;
   const element = $(`[data-idea-image="${item.id}"]`);
   if (element) {
-    element.style.backgroundImage = `url("${url}")`;
+    element.style.backgroundImage = `url("${image.url}")`;
+    element.setAttribute("aria-label", `Sfeerbeeld bij ${item.title}: ${image.caption.split(" · ")[0]}`);
+    element.dataset.coverCaption = image.caption;
     element.classList.add("loaded");
   }
 }
@@ -334,7 +393,7 @@ function seedIdeaCovers() {
       || (galleries[place] || []).find(image => !usedIdeaCovers.has(image.url));
     if (cover) {
       usedIdeaCovers.add(cover.url);
-      applyIdeaCover(item, cover.url);
+      applyIdeaCover(item, cover);
     }
   });
 }
@@ -342,16 +401,14 @@ function seedIdeaCovers() {
 async function loadIdeaCover(item) {
   const galleryKey = `activity:${item.id}`;
   const activityImages = await enrichGallery(galleryKey);
-  const place = normalizeGalleryPlace(item.place);
-  const placeItems = ideas.filter(candidate => normalizeGalleryPlace(candidate.place) === place);
-  const placeIndex = placeItems.findIndex(candidate => candidate.id === item.id);
-  const placeImages = galleries[place] || [];
-  const candidates = [...activityImages, ...placeImages.slice(placeIndex), ...placeImages.slice(0, placeIndex)];
+  const candidates = activityImages
+    .map(image => ({ image, score: scoreIdeaCover(image, item) }))
+    .sort((a, b) => b.score - a.score);
   usedIdeaCovers.delete(item.image);
-  const cover = candidates.find(image => image?.url && !usedIdeaCovers.has(image.url));
-  if (!cover) { usedIdeaCovers.add(item.image); return; }
-  usedIdeaCovers.add(cover.url);
-  applyIdeaCover(item, cover.url);
+  const match = candidates.find(candidate => candidate.score > 0 && !usedIdeaCovers.has(candidate.image.url));
+  if (!match) { usedIdeaCovers.add(item.image); return; }
+  usedIdeaCovers.add(match.image.url);
+  applyIdeaCover(item, match.image);
 }
 
 async function loadIdeaCovers() {
@@ -456,7 +513,7 @@ function renderIdeas() {
     const chosenByMe = Boolean(currentMember && voters.includes(currentMember));
     return `
     <article class="idea-card" data-idea-card="${item.place}" ${activeIdeaPlace !== "Alle" && activeIdeaPlace !== item.place ? "hidden" : ""}>
-      <div class="idea-image" data-idea-image="${item.id}" style="background-image:url('${item.image}')"></div>
+      <div class="idea-image" role="img" aria-label="Sfeerbeeld bij ${item.title}" data-idea-image="${item.id}" style="background-image:url('${item.image}')"></div>
       <div class="idea-body">
         <div class="idea-top"><span>${item.place}</span><span>${item.vibe}</span></div>
         <span class="origin-badge ${item.origin}">${item.origin === "proposal" ? "Stond in reisvoorstel" : "Zelf opgezocht"}</span>
