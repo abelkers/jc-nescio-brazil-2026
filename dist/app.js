@@ -31,6 +31,18 @@ const galleries = {
   ]
 };
 
+const galleryQueries = {
+  Salvador: "Salvador Bahia Pelourinho Brazil",
+  "Lençóis": "Chapada Diamantina Lencois Bahia Brazil",
+  "Itacaré": "Itacare Bahia Brazil beach",
+  "Petrópolis": "Petropolis Rio de Janeiro Brazil",
+  "Rio de Janeiro": "Rio de Janeiro Brazil landmarks beach",
+  "Ilha Grande": "Ilha Grande Angra dos Reis Brazil"
+};
+const galleryLabels = Object.fromEntries(Object.keys(galleryQueries).map(place => [place, place]));
+const galleryFallbacks = {};
+const galleryLoads = new Map();
+
 const photos = Object.fromEntries(Object.entries(galleries).map(([place, images]) => [place, images[0].url]));
 
 const stops = {
@@ -67,20 +79,55 @@ const itinerary = [
 ];
 
 const ideas = [
-  { id: "salvador-capoeira", place: "Salvador", title: "Capoeira & percussie in Pelourinho", copy: "Een energieke culturele avond die perfect past na de city tour.", time: "2–3 uur", cost: "€€", vibe: "cultuur", image: photos.Salvador },
-  { id: "salvador-barra", place: "Salvador", title: "Zonsondergang bij Farol da Barra", copy: "Relaxte eerste avond aan zee met uitzicht vanaf de vuurtoren.", time: "2 uur", cost: "€", vibe: "chill", image: photos.Salvador },
-  { id: "itacare-beaches", place: "Itacaré", title: "Trail langs vier stranden", copy: "Havaizinho, Engenhoca, Camboinha en Itacarezinho in één dag.", time: "5–6 uur", cost: "€€", vibe: "actief", image: photos["Itacaré"] },
-  { id: "itacare-surf", place: "Itacaré", title: "Surflessen", copy: "Beginnersles met materiaal op een strand dat bij de omstandigheden past.", time: "2–3 uur", cost: "€€", vibe: "sport", image: photos["Itacaré"] },
-  { id: "itacare-waterfall", place: "Itacaré", title: "Cachoeira do Tijuípe", copy: "Waterval, zwemmen en eventueel combineren met Itacarezinho.", time: "halve dag", cost: "€€", vibe: "natuur", image: photos["Itacaré"] },
-  { id: "petropolis-museum", place: "Petrópolis", title: "Museu Imperial", copy: "Het voormalige zomerpaleis van Pedro II en de historische kern van de stad.", time: "2 uur", cost: "€", vibe: "cultuur", image: photos["Petrópolis"] },
-  { id: "petropolis-beer", place: "Petrópolis", title: "Braziliaanse bierproeverij", copy: "Een rondleiding of tasting bij de lokale biertraditie van Petrópolis.", time: "2–3 uur", cost: "€€", vibe: "proeven", image: photos["Petrópolis"] },
-  { id: "rio-sugarloaf", place: "Rio", title: "Sugarloaf bij zonsondergang", copy: "Klassiek Rio-uitzicht; reserveer een tijdslot en plan ruim rond zonsondergang.", time: "3 uur", cost: "€€€", vibe: "iconisch", image: photos["Rio de Janeiro"] },
-  { id: "rio-samba", place: "Rio", title: "Samba-avond in Lapa", copy: "Live muziek en nachtelijk Rio. Spreek vervoer en een vaste terugtijd af.", time: "avond", cost: "€€", vibe: "nacht", image: photos["Rio de Janeiro"] },
-  { id: "rio-match", place: "Rio", title: "Wedstrijd in Maracanã", copy: "De droomoptie, zodra speelschema, club en betrouwbare tickets vaststaan.", time: "halve dag", cost: "€€€", vibe: "voetbal", image: photos["Rio de Janeiro"] },
-  { id: "ilha-boat", place: "Ilha Grande", title: "Speedboat rond het eiland", copy: "Veel baaien op één dag; route blijft afhankelijk van wind en zee.", time: "volle dag", cost: "€€€", vibe: "water", image: photos["Ilha Grande"] },
-  { id: "ilha-lopes", place: "Ilha Grande", title: "Hike naar Lopes Mendes", copy: "Jungletrail en een van de bekendste stranden van het eiland.", time: "5–6 uur", cost: "€", vibe: "strand", image: photos["Ilha Grande"] },
-  { id: "ilha-papagaio", place: "Ilha Grande", title: "Pico do Papagaio", copy: "De sportieve finale. Liefst met gids en alleen bij geschikte omstandigheden.", time: "6–8 uur", cost: "€€", vibe: "hike", image: photos["Ilha Grande"] }
+  { id: "salvador-capoeira", place: "Salvador", title: "Capoeira & percussie in Pelourinho", copy: "Een energieke culturele avond die perfect past na de city tour.", time: "2–3 uur", cost: "€€", vibe: "cultuur", image: photos.Salvador, search: "capoeira Pelourinho Salvador", source: "https://visitbrasil.com/en/explore-afro-brazilian-roots-on-an-immersive-walking-tour-of-salvador/" },
+  { id: "salvador-barra", place: "Salvador", title: "Zonsondergang bij Farol da Barra", copy: "Relaxte eerste avond aan zee met uitzicht vanaf de vuurtoren.", time: "2 uur", cost: "€", vibe: "chill", image: photos.Salvador, search: "Farol da Barra Salvador sunset", source: "https://visitbrasil.com/location/salvador-pt/" },
+  { id: "salvador-afro", place: "Salvador", title: "Bahia Negra-wandeling", copy: "Een lokale gids verbindt Pelourinho, Afro-Braziliaanse geschiedenis, muziek en eten.", time: "4 uur", cost: "€€", vibe: "verhaal", image: photos.Salvador, search: "Pelourinho Afro Brazilian culture Salvador", source: "https://feel.visitbrasil.com/en/tour-bahia-negra-5/" },
+  { id: "salvador-food", place: "Salvador", title: "Acarajé & Bahiaanse kookworkshop", copy: "Proef moqueca, vatapá en acarajé of leer zelf een Bahiaans gerecht maken.", time: "3 uur", cost: "€€", vibe: "proeven", image: photos.Salvador, search: "acaraje Salvador Bahia food", source: "https://visitbrasil.com/en/explore-afro-brazilian-roots-on-an-immersive-walking-tour-of-salvador/" },
+  { id: "salvador-bonfim", place: "Salvador", title: "Bonfim, Mercado Modelo & Cidade Baixa", copy: "Een halve dag langs het geloof, de kleurrijke lintjes, markt en uitzicht vanaf Elevador Lacerda.", time: "halve dag", cost: "€", vibe: "cultuur", image: photos.Salvador, search: "Igreja Bonfim Mercado Modelo Salvador", source: "https://visitbrasil.com/location/salvador-pt/" },
+
+  { id: "lencois-pai-inacio", place: "Lençóis", title: "Zonsondergang op Morro do Pai Inácio", copy: "Een relatief korte klim naar het bekendste panorama van Chapada Diamantina.", time: "halve dag", cost: "€€", vibe: "uitzicht", image: photos["Lençóis"], search: "Morro do Pai Inacio Chapada Diamantina", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
+  { id: "lencois-fumaca", place: "Lençóis", title: "Cachoeira da Fumaça", copy: "Een lange dagtocht naar een van de spectaculairste watervallen van de regio.", time: "volle dag", cost: "€€", vibe: "hike", image: photos["Lençóis"], search: "Cachoeira da Fumaca Chapada Diamantina", source: "https://visitbrasil.com/en/embark-on-an-exciting-journey-in-chapada-diamantina/" },
+  { id: "lencois-caves", place: "Lençóis", title: "Grottencircuit: Lapa Doce & Pratinha", copy: "Ondergrondse zalen, helder water en geologische formaties als rustigere dagtrip.", time: "volle dag", cost: "€€", vibe: "grotten", image: photos["Lençóis"], search: "Lapa Doce Pratinha Chapada Diamantina", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
+  { id: "lencois-marimbus", place: "Lençóis", title: "Kanoën door Marimbus", copy: "Vier uur varen door het stille ‘Pantanal van Chapada’ vanuit de quilombola-gemeenschap Remanso.", time: "volle dag", cost: "€€", vibe: "water", image: photos["Lençóis"], search: "Marimbus Chapada Diamantina canoe", source: "https://feel.visitbrasil.com/en/marimbus-pantanal/" },
+  { id: "lencois-bike", place: "Lençóis", title: "Mountainbike naar Barro Branco", copy: "Technische oude mijnwerkerspaden met rivierbaden; vooral voor ervaren mountainbikers.", time: "volle dag", cost: "€€€", vibe: "sport", image: photos["Lençóis"], search: "mountain bike Chapada Diamantina Lencois", source: "https://visitbrasil.com/en/location/chapada-diamantina/" },
+
+  { id: "itacare-beaches", place: "Itacaré", title: "Trail langs vier stranden", copy: "Havaizinho, Engenhoca, Camboinha en Itacarezinho in één dag.", time: "5–6 uur", cost: "€€", vibe: "actief", image: photos["Itacaré"], search: "Itacarezinho Engenhoca beach Itacare", source: "https://itacare.ba.gov.br/praias/" },
+  { id: "itacare-surf", place: "Itacaré", title: "Surflessen", copy: "Beginnersles met materiaal op een strand dat bij de omstandigheden past.", time: "2–3 uur", cost: "€€", vibe: "sport", image: photos["Itacaré"], search: "surf Itacare Bahia", source: "https://itacare.ba.gov.br/esportes-e-aventura/" },
+  { id: "itacare-waterfall", place: "Itacaré", title: "Cachoeira do Tijuípe", copy: "Waterval, zwemmen en eventueel combineren met Itacarezinho.", time: "halve dag", cost: "€€", vibe: "natuur", image: photos["Itacaré"], search: "Cachoeira Tijuípe Itacare", source: "https://www.destinoitacare.com.br/" },
+  { id: "itacare-rafting", place: "Itacaré", title: "Raften op de Rio de Contas", copy: "Stroomversnellingen, jungle en teamwork voor wie een actieve dag wil.", time: "halve dag", cost: "€€€", vibe: "adrenaline", image: photos["Itacaré"], search: "rafting Rio de Contas Itacare", source: "https://www.ba.gov.br/turismo/noticia/2024-07/3214/itacare-e-destaque-nacional-no-turismo-esportivo-e-de-aventura" },
+  { id: "itacare-cacao", place: "Itacaré", title: "Cacaoboerderij & chocoladeproeverij", copy: "Volg de cacaovrucht van plantage tot chocolade en proef Zuid-Bahia.", time: "halve dag", cost: "€€", vibe: "proeven", image: photos["Itacaré"], search: "cacao farm Bahia chocolate", source: "https://www.destinoitacare.com.br/" },
+  { id: "itacare-canoe", place: "Itacaré", title: "Kano, SUP of mangrovetocht", copy: "Een rustiger wateravontuur door rivier en mangrove, afhankelijk van getij en aanbieder.", time: "2–4 uur", cost: "€€", vibe: "water", image: photos["Itacaré"], search: "canoe mangrove Itacare Bahia", source: "https://www.ba.gov.br/turismo/noticia/2024-07/3214/itacare-e-destaque-nacional-no-turismo-esportivo-e-de-aventura" },
+
+  { id: "petropolis-museum", place: "Petrópolis", title: "Museu Imperial", copy: "Het voormalige zomerpaleis van Pedro II en de historische kern van de stad.", time: "2 uur", cost: "€", vibe: "cultuur", image: photos["Petrópolis"], search: "Museu Imperial Petropolis", source: "https://www.turismo.rj.gov.br/cidades/petropolis/" },
+  { id: "petropolis-beer", place: "Petrópolis", title: "Braziliaanse bierproeverij", copy: "Een rondleiding of tasting bij de lokale biertraditie van Petrópolis.", time: "2–3 uur", cost: "€€", vibe: "proeven", image: photos["Petrópolis"], search: "Cervejaria Bohemia Petropolis", source: "https://www.petropolis.rj.gov.br/turispetro/circuitos-cervejeiros" },
+  { id: "petropolis-dumont", place: "Petrópolis", title: "Casa de Santos Dumont", copy: "Een compact en eigenzinnig huis-museum van de Braziliaanse luchtvaartpionier.", time: "1–2 uur", cost: "€", vibe: "geschiedenis", image: photos["Petrópolis"], search: "Casa Santos Dumont Petropolis", source: "https://www.turismo.rj.gov.br/cidades/petropolis/" },
+  { id: "petropolis-crystal", place: "Petrópolis", title: "Palácio de Cristal & kathedraal", copy: "Combineer twee iconen met een wandeling door het historische centrum.", time: "2–3 uur", cost: "€", vibe: "wandelen", image: photos["Petrópolis"], search: "Palacio de Cristal Petropolis cathedral", source: "https://www.turismo.rj.gov.br/cidades/petropolis/" },
+  { id: "petropolis-serra", place: "Petrópolis", title: "Serra dos Órgãos-dagtocht", copy: "Kies een passende trail of waterval in het nationale park en regel vervoer vooraf.", time: "volle dag", cost: "€€", vibe: "natuur", image: photos["Petrópolis"], search: "Serra dos Orgaos Petropolis Brazil", source: "https://www.petropolis.rj.gov.br/turispetro/viva-essa-experiencia" },
+
+  { id: "rio-sugarloaf", place: "Rio", title: "Sugarloaf bij zonsondergang", copy: "Klassiek Rio-uitzicht; reserveer een tijdslot en plan ruim rond zonsondergang.", time: "3 uur", cost: "€€€", vibe: "iconisch", image: photos["Rio de Janeiro"], search: "Pao de Acucar Sugarloaf Rio sunset", source: "https://riotur.rio/en/editorial/press-2/" },
+  { id: "rio-samba", place: "Rio", title: "Samba-avond in Lapa", copy: "Live muziek en nachtelijk Rio. Spreek vervoer en een vaste terugtijd af.", time: "avond", cost: "€€", vibe: "nacht", image: photos["Rio de Janeiro"], search: "Lapa samba Rio de Janeiro", source: "https://riotur.rio/en/que_fazer/rio-nightlife/" },
+  { id: "rio-match", place: "Rio", title: "Wedstrijd in Maracanã", copy: "De droomoptie, zodra speelschema, club en betrouwbare tickets vaststaan.", time: "halve dag", cost: "€€€", vibe: "voetbal", image: photos["Rio de Janeiro"], search: "Maracana football Rio de Janeiro", source: "https://riotur.rio/en/editorial/press-2/" },
+  { id: "rio-pedra-bonita", place: "Rio", title: "Hike naar Pedra Bonita", copy: "Een toegankelijke top met uitzicht op Pedra da Gávea, stranden en Tijuca Forest.", time: "halve dag", cost: "€€", vibe: "hike", image: photos["Rio de Janeiro"], search: "Pedra Bonita Rio de Janeiro", source: "https://riotur.rio/en/que_fazer/pedra-bonita-2/" },
+  { id: "rio-santa-teresa", place: "Rio", title: "Santa Teresa, tram & Selarón", copy: "Boheemse straten, kunst, oude tram en de kleurrijke trappen richting Lapa.", time: "halve dag", cost: "€", vibe: "wijk", image: photos["Rio de Janeiro"], search: "Santa Teresa tram Selaron Rio", source: "https://riotur.rio/en/que_fazer/santa-teresa-itinerary/" },
+  { id: "rio-tijuca", place: "Rio", title: "Tijuca Forest & watervallen", copy: "Een groene stadsescape langs Taunay, uitzichtpunten en korte junglepaden.", time: "halve dag", cost: "€€", vibe: "natuur", image: photos["Rio de Janeiro"], search: "Tijuca Forest waterfall Rio", source: "https://riotur.rio/en/que_fazer/45731/" },
+  { id: "rio-pedra-sal", place: "Rio", title: "Roda de samba bij Pedra do Sal", copy: "Een historische sambaplek; check kort vooraf welke avond er muziek is.", time: "avond", cost: "€", vibe: "muziek", image: photos["Rio de Janeiro"], search: "Pedra do Sal samba Rio", source: "https://riotur.rio/en/destaque/what-makes-rio-special/" },
+  { id: "rio-museums", place: "Rio", title: "Museu do Amanhã & Pequena África", copy: "Moderne architectuur, havengebied en Afro-Braziliaanse geschiedenis in één route.", time: "halve dag", cost: "€€", vibe: "cultuur", image: photos["Rio de Janeiro"], search: "Museu do Amanha Pequena Africa Rio", source: "https://riotur.rio/en/destaque/what-makes-rio-special/" },
+
+  { id: "ilha-boat", place: "Ilha Grande", title: "Speedboat rond het eiland", copy: "Veel baaien op één dag; route blijft afhankelijk van wind en zee.", time: "volle dag", cost: "€€€", vibe: "water", image: photos["Ilha Grande"], search: "boat tour Ilha Grande Brazil", source: "https://visite.angra.rj.gov.br/ponto-turistico/lagoa-azul" },
+  { id: "ilha-lopes", place: "Ilha Grande", title: "Hike naar Lopes Mendes", copy: "Jungletrail en een van de bekendste stranden van het eiland.", time: "5–6 uur", cost: "€", vibe: "strand", image: photos["Ilha Grande"], search: "Lopes Mendes Ilha Grande", source: "https://visitilhagrande.com/ilha-grande-beaches/" },
+  { id: "ilha-papagaio", place: "Ilha Grande", title: "Pico do Papagaio", copy: "De sportieve finale. Liefst met gids en alleen bij geschikte omstandigheden.", time: "6–8 uur", cost: "€€", vibe: "hike", image: photos["Ilha Grande"], search: "Pico do Papagaio Ilha Grande", source: "https://visitilhagrande.com/ilha-grande-beaches/" },
+  { id: "ilha-lagoa-azul", place: "Ilha Grande", title: "Snorkelen in Lagoa Azul", copy: "Rustig, helder water en veel vis; meestal onderdeel van een bootroute.", time: "halve dag", cost: "€€", vibe: "snorkel", image: photos["Ilha Grande"], search: "Lagoa Azul Ilha Grande snorkeling", source: "https://visite.angra.rj.gov.br/ponto-turistico/lagoa-azul" },
+  { id: "ilha-dois-rios", place: "Ilha Grande", title: "Trail naar Dois Rios", copy: "Een stevige wandeling naar een breed strand en de geschiedenis van de voormalige gevangenis.", time: "volle dag", cost: "€", vibe: "ontdekken", image: photos["Ilha Grande"], search: "Dois Rios Ilha Grande", source: "https://visitilhagrande.com/ilha-grande-beaches/" },
+  { id: "ilha-kayak", place: "Ilha Grande", title: "Kajakken vanuit Abraão", copy: "Peddel langs rustige baaien en kleine stranden, liefst vroeg en bij kalme zee.", time: "2–4 uur", cost: "€€", vibe: "water", image: photos["Ilha Grande"], search: "kayak Vila do Abraao Ilha Grande", source: "https://www.ilhagrande.com.br/atrativos/lagoa-azul/" },
+  { id: "ilha-dive", place: "Ilha Grande", title: "Duiken of discover scuba", copy: "Voor beginners of gebrevetteerde duikers; zicht en locatie hangen van de omstandigheden af.", time: "halve dag", cost: "€€€", vibe: "duiken", image: photos["Ilha Grande"], search: "scuba diving Ilha Grande Brazil", source: "https://www.ilhagrande.com.br/atrativos/lagoa-azul/" }
 ];
+
+ideas.forEach(item => {
+  const key = `activity:${item.id}`;
+  galleryQueries[key] = `${item.search} Brazil`;
+  galleryLabels[key] = item.title;
+  galleryFallbacks[key] = normalizeGalleryPlace(item.place);
+});
 
 const stays = [
   ["3–5 okt", "Nomads Multicultural", "Salvador · private dorm", "2 nachten"],
@@ -196,15 +243,74 @@ function initRoute() {
 let dialogPlace = "Salvador";
 let dialogIndex = 0;
 function normalizeGalleryPlace(place) { return place === "Rio" ? "Rio de Janeiro" : place; }
+function plainText(value = "") {
+  const node = document.createElement("div");
+  node.innerHTML = value;
+  return (node.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+async function fetchCommonsImages(query) {
+  const params = new URLSearchParams({
+    action: "query",
+    format: "json",
+    origin: "*",
+    generator: "search",
+    gsrsearch: `${query} filetype:bitmap`,
+    gsrnamespace: "6",
+    gsrlimit: "24",
+    prop: "imageinfo",
+    iiprop: "url|mime|extmetadata",
+    iiurlwidth: "1800"
+  });
+  const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`);
+  if (!response.ok) throw new Error("Commons kon niet worden geladen");
+  const data = await response.json();
+  return Object.values(data.query?.pages || {}).map(page => {
+    const info = page.imageinfo?.[0];
+    if (!info?.thumburl || !/^image\/(jpeg|png|webp)$/i.test(info.mime || "")) return null;
+    const title = plainText(page.title.replace(/^File:/, "").replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "));
+    const artist = plainText(info.extmetadata?.Artist?.value || info.extmetadata?.Credit?.value || "Wikimedia Commons").slice(0, 80);
+    const license = plainText(info.extmetadata?.LicenseShortName?.value || "Wikimedia Commons");
+    return { url: info.thumburl, caption: `${title} · ${artist} / ${license}` };
+  }).filter(Boolean);
+}
+
+async function enrichGallery(key) {
+  if (galleries[key]?.length >= 12) return galleries[key];
+  if (galleryLoads.has(key)) return galleryLoads.get(key);
+  const task = (async () => {
+    const fallback = galleryFallbacks[key];
+    if (!galleries[key]) galleries[key] = fallback ? [...(galleries[fallback] || [])] : [];
+    const queries = [galleryQueries[key], fallback && galleryQueries[fallback]].filter(Boolean);
+    const collected = fallback ? [] : [...galleries[key]];
+    for (const query of [...new Set(queries)]) {
+      const found = await fetchCommonsImages(query);
+      const known = new Set(collected.map(image => image.url));
+      found.forEach(image => { if (!known.has(image.url) && collected.length < 12) { collected.push(image); known.add(image.url); } });
+      if (collected.length >= 12) break;
+    }
+    if (fallback && collected.length < 12) {
+      const known = new Set(collected.map(image => image.url));
+      (galleries[fallback] || []).forEach(image => { if (!known.has(image.url) && collected.length < 12) { collected.push(image); known.add(image.url); } });
+    }
+    galleries[key] = collected.slice(0, 12);
+    if (dialogPlace === key) { dialogIndex = Math.min(dialogIndex, galleries[key].length - 1); renderDialog(); }
+    if (currentStop === key) updateStopPhoto();
+    return galleries[key];
+  })().catch(() => galleries[key] || []);
+  galleryLoads.set(key, task);
+  return task;
+}
+
 function renderDialog() {
   const images = galleries[dialogPlace];
   const current = images[dialogIndex];
-  $("[data-dialog-place]").textContent = dialogPlace.toUpperCase();
+  $("[data-dialog-place]").textContent = (galleryLabels[dialogPlace] || dialogPlace).toUpperCase();
   $("[data-dialog-title]").textContent = `Foto ${dialogIndex + 1} van ${images.length}`;
   $("[data-dialog-image]").src = current.url;
   $("[data-dialog-image]").alt = current.caption.split(" · ")[0];
   $("[data-dialog-caption]").textContent = current.caption;
-  $("[data-dialog-thumbs]").innerHTML = images.map((image, index) => `<button class="dialog-thumb ${index === dialogIndex ? "active" : ""}" type="button" data-dialog-thumb="${index}" aria-label="Open foto ${index + 1}"><img src="${image.url}" alt=""></button>`).join("");
+  $("[data-dialog-thumbs]").innerHTML = images.map((image, index) => `<button class="dialog-thumb ${index === dialogIndex ? "active" : ""}" type="button" data-dialog-thumb="${index}" aria-label="Open foto ${index + 1}"><img src="${image.url}" alt="" loading="lazy"></button>`).join("");
   $$("[data-dialog-thumb]").forEach(button => button.addEventListener("click", () => {
     dialogIndex = Number(button.dataset.dialogThumb);
     renderDialog();
@@ -213,9 +319,12 @@ function renderDialog() {
 
 function openGallery(place, index = 0) {
   dialogPlace = normalizeGalleryPlace(place);
+  const fallback = galleryFallbacks[dialogPlace];
+  if (!galleries[dialogPlace]) galleries[dialogPlace] = fallback ? [...(galleries[fallback] || [])] : [];
   dialogIndex = index;
   renderDialog();
   $("[data-photo-dialog]").showModal();
+  enrichGallery(dialogPlace);
 }
 
 function initPhotoDialog() {
@@ -289,9 +398,10 @@ function renderIdeas() {
         <div class="idea-top"><span>${item.place}</span><span>${item.vibe}</span></div>
         <h3>${item.title}</h3><p>${item.copy}</p>
         <div class="idea-meta"><span>◷ ${item.time}</span><span>·</span><span>${item.cost}</span></div>
+        <a class="idea-source" href="${item.source}" target="_blank" rel="noopener">Bekijk officiële inspiratie ↗</a>
         <div class="idea-voters">${voters.map(name => `<span class="voter"><i>${name.slice(0,1).toUpperCase()}</i>${name}</span>`).join("")}</div>
         <button class="save-idea ${chosenByMe ? "saved" : ""}" type="button" data-save-idea="${item.id}" aria-pressed="${chosenByMe}">${chosenByMe ? "✓ Door jou gekozen" : "+ Zet op mijn shortlist"}</button>
-        <button class="idea-gallery" type="button" data-idea-gallery="${item.place}">Bekijk foto's van ${item.place} ↗</button>
+        <button class="idea-gallery" type="button" data-idea-gallery="activity:${item.id}">Bekijk 12+ sfeerbeelden ↗</button>
       </div>
     </article>`;
   }).join("");
@@ -410,3 +520,4 @@ renderTravelInfo();
 initNavigation();
 updateCountdown();
 setInterval(updateCountdown, 60000);
+Promise.allSettled(Object.keys(stops).map(place => enrichGallery(place)));

@@ -169,6 +169,8 @@ img { display: block; max-width: 100%; }
 .idea-body h3 { font-size: 23px; margin: 15px 0 10px; letter-spacing: -.025em; }
 .idea-body > p { font-size: 12px; line-height: 1.6; color: rgba(255,255,255,.67); }
 .idea-meta { display: flex; gap: 12px; margin-top: auto; color: rgba(255,255,255,.7); font-size: 10px; }
+.idea-source { display:inline-flex; width:max-content; margin-top:11px; color:rgba(255,255,255,.58); font-size:9px; font-weight:750; text-decoration:none; }
+.idea-source:hover { color:var(--lime); }
 .save-idea { margin-top: 18px; width: 100%; min-height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,.24); background: transparent; color: white; cursor: pointer; font-size: 11px; font-weight: 850; }
 .save-idea:hover, .save-idea.saved { background: var(--lime); border-color: var(--lime); color: var(--green-3); }
 .idea-voters { min-height:28px; display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-top:12px; }
