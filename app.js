@@ -571,37 +571,85 @@ function saveSet(key, set) {
   try { localStorage.setItem(key, JSON.stringify([...set])); } catch { /* storage may be disabled */ }
 }
 
-function encodeGroupState(value) {
-  const bytes = new TextEncoder().encode(JSON.stringify(value));
-  let binary = "";
-  bytes.forEach(byte => { binary += String.fromCharCode(byte); });
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
+const supabaseUrl = "https://ecibahnfwhtkdlkqkzwn.supabase.co";
+const supabasePublishableKey = "sb_publishable_sy9K1wOmKzwTuCqokpprgw_3DSA1D-2";
+const supabaseClient = window.supabase?.createClient?.(supabaseUrl, supabasePublishableKey);
 
-function decodeGroupState(value) {
-  try {
-    const base64 = value.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((value.length + 3) % 4);
-    const bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0));
-    const parsed = JSON.parse(new TextDecoder().decode(bytes));
-    return Object.fromEntries(Object.entries(parsed).filter(([, names]) => Array.isArray(names)).map(([id, names]) => [id, [...new Set(names.map(String).filter(Boolean))].slice(0, 20)]));
-  } catch { return null; }
-}
-
-function loadGroupVotes() {
-  const shared = new URL(location.href).searchParams.get("group");
-  if (shared) return decodeGroupState(shared) || {};
-  try { return JSON.parse(localStorage.getItem("nescio-group-shortlist-v2") || "{}"); }
-  catch { return {}; }
-}
-
-let groupVotes = loadGroupVotes();
+let groupVotes = {};
 let currentMember = localStorage.getItem("nescio-member-name") || "";
-function syncGroupState() {
-  try { localStorage.setItem("nescio-group-shortlist-v2", JSON.stringify(groupVotes)); } catch { /* storage may be disabled */ }
-  const url = new URL(location.href);
-  const hasVotes = Object.values(groupVotes).some(names => names.length);
-  hasVotes ? url.searchParams.set("group", encodeGroupState(groupVotes)) : url.searchParams.delete("group");
-  history.replaceState(null, "", url);
+let liveVotesLoading = false;
+
+function setLiveStatus(message, ready = false) {
+  const status = $("[data-live-status]");
+  status.textContent = message;
+  status.classList.toggle("ready", ready);
+}
+
+function votesByActivity(rows) {
+  return rows.reduce((result, row) => {
+    const id = String(row.activity_id || "");
+    const name = String(row.member_name || "").trim();
+    if (!id || !name) return result;
+    result[id] ||= [];
+    if (!result[id].includes(name)) result[id].push(name);
+    return result;
+  }, {});
+}
+
+async function loadLiveVotes({ quiet = false } = {}) {
+  if (!supabaseClient || liveVotesLoading) return;
+  liveVotesLoading = true;
+  const { data, error } = await supabaseClient
+    .from("shortlist_votes")
+    .select("activity_id, member_name")
+    .order("created_at", { ascending: true });
+  liveVotesLoading = false;
+  if (error) {
+    setLiveStatus("Live groepsshortlist tijdelijk niet bereikbaar");
+    if (!quiet) toast("Groepsshortlist kon niet laden");
+    return;
+  }
+  groupVotes = votesByActivity(data || []);
+  setLiveStatus("Live verbonden · keuzes worden direct gedeeld", true);
+  renderIdeas();
+}
+
+async function toggleLiveVote(activityId) {
+  const name = currentMember.trim();
+  if (!name) {
+    $("[data-member-name]").focus();
+    toast("Vul eerst je naam in");
+    return;
+  }
+  if (!supabaseClient) {
+    toast("Live groepsshortlist is niet beschikbaar");
+    return;
+  }
+  const voters = groupVotes[activityId] || [];
+  setLiveStatus("Keuze opslaan…");
+  const request = voters.includes(name)
+    ? supabaseClient.from("shortlist_votes").delete().eq("activity_id", activityId).eq("member_name", name)
+    : supabaseClient.from("shortlist_votes").insert({ activity_id: activityId, member_name: name });
+  const { error } = await request;
+  if (error) {
+    setLiveStatus("Live groepsshortlist tijdelijk niet bereikbaar");
+    toast("Opslaan lukte niet — probeer opnieuw");
+    return;
+  }
+  await loadLiveVotes({ quiet: true });
+}
+
+function startLiveShortlist() {
+  if (!supabaseClient) {
+    setLiveStatus("Live groepsshortlist kon niet starten");
+    return;
+  }
+  loadLiveVotes();
+  supabaseClient
+    .channel("jc-nescio-shortlist")
+    .on("postgres_changes", { event: "*", schema: "public", table: "shortlist_votes" }, () => loadLiveVotes({ quiet: true }))
+    .subscribe();
+  setInterval(() => loadLiveVotes({ quiet: true }), 15000);
 }
 
 let activeIdeaPlace = "Alle";
@@ -639,19 +687,13 @@ function renderIdeas() {
       toast("Vul eerst je naam in");
       return;
     }
-    const id = button.dataset.saveIdea;
-    const voters = groupVotes[id] || [];
-    groupVotes[id] = voters.includes(name) ? voters.filter(voter => voter !== name) : [...voters, name];
-    if (!groupVotes[id].length) delete groupVotes[id];
-    syncGroupState();
-    renderIdeas();
+    toggleLiveVote(button.dataset.saveIdea);
   }));
   $$("[data-idea-gallery]").forEach(button => button.addEventListener("click", () => openGallery(button.dataset.ideaGallery)));
 }
 
 async function shareGroupState() {
-  syncGroupState();
-  const data = { title: "JC Nescio groepsshortlist", text: "Bekijk wie welke activiteiten heeft gekozen voor Brazilië 2026.", url: location.href };
+  const data = { title: "JC Nescio groepsshortlist", text: "Kies live mee met de activiteiten voor Brazilië 2026.", url: location.href };
   try {
     if (navigator.share) await navigator.share(data);
     else { await navigator.clipboard.writeText(location.href); toast("Groepslink gekopieerd"); }
@@ -668,6 +710,7 @@ function initGroupShortlist() {
   });
   input.addEventListener("keydown", event => { if (event.key === "Enter") input.blur(); });
   $("[data-share-group]").addEventListener("click", shareGroupState);
+  startLiveShortlist();
 }
 
 function renderTravelInfo() {
